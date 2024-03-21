@@ -1,4 +1,5 @@
 import time
+import random
 import logging
 import pickle
 from selenium import webdriver
@@ -92,11 +93,23 @@ def is_logged_in(driver):
 def wait_for_redirect(driver):
     WebDriverWait(driver, 120).until(EC.url_contains("https://www.tiktok.com/foryou?lang=en"))
 
+# Function to filter out non-BMP characters
+def filter_non_bmp(text):
+    return ''.join(char for char in text if ord(char) < 0x10000)
+
+# Function to send keys with a random delay between each keystroke
+def slow_send_keys(element, text, min_delay=0.1, max_delay=0.3):
+    for char in text:
+        element.send_keys(char)
+        delay = random.uniform(min_delay, max_delay)
+        time.sleep(delay)
+
 def main():
     logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
     # Initialize the browser
     browser = initialize_browser()
+    
     browser.get("https://www.tiktok.com")
 
     # Check for existing cookies
@@ -226,6 +239,10 @@ def main():
         iframe_selector = "#root > div.pb-2.w-full.flex.flex-col.overflow-hidden > div.pt-4.h-full.m-auto.flex.flex-1.relative.contact-card-container > div > div > iframe"
         WebDriverWait(browser, 35).until(EC.frame_to_be_available_and_switch_to_it((By.CSS_SELECTOR, iframe_selector)))
 
+        
+        # Generate a random sleep time between 10 and 25 seconds
+        random_sleep_time = random.uniform(10, 35)
+
         # Wait for the input area to be available
         try:
             input_area_selector = 'div[aria-label="Send a message..."]'
@@ -237,20 +254,23 @@ def main():
             # Replace line breaks with spaces in the outreach message
             outreach_message = outreach_message.replace('\n', ' ')
 
-            # Type the modified message in the input area
-            input_area.send_keys(outreach_message)
+            message = filter_non_bmp(outreach_message)
+
+           # Use the slow_send_keys function to send the filtered outreach message
+            slow_send_keys(input_area, message)
+            
             
             # Find the element to click on after typing the message
             send_button_selector = '#main-content-messages > div.css-d0yksp-DivChatBox.ediam1h0 > div.css-fqfkc9-DivChatBottom.e1823izs0 > svg'
 
             send_button = WebDriverWait(browser, 35).until(EC.element_to_be_clickable((By.CSS_SELECTOR, send_button_selector)))
             
-            time.sleep(3)
+            time.sleep(random_sleep_time)
             
             # Click on the specified element
             send_button.click()
             
-            time.sleep(6)
+            time.sleep(random_sleep_time)
 
             # Switch back to the default content
             browser.switch_to.default_content()
@@ -286,20 +306,22 @@ def main():
                 # Replace line breaks with spaces in the outreach message
                 outreach_message = outreach_message.replace('\n', ' ')
 
-                # Type the modified message in the input area
-                input_area.send_keys(outreach_message)
+                message = filter_non_bmp(outreach_message)
+
+                # Use the slow_send_keys function to send the filtered outreach message
+                slow_send_keys(input_area, message)
                 
                 # Find the element to click on after typing the message
                 send_button_selector = '#main-content-messages > div.css-d0yksp-DivChatBox.ediam1h0 > div.css-fqfkc9-DivChatBottom.e1823izs0 > svg'
 
                 send_button = WebDriverWait(browser, 35).until(EC.element_to_be_clickable((By.CSS_SELECTOR, send_button_selector)))
                 
-                time.sleep(5)
+                time.sleep(random_sleep_time)
                 
                 # Click on the specified element
                 send_button.click()
                 
-                time.sleep(10)
+                time.sleep(random_sleep_time)
 
                 # Switch back to the default content
                 browser.switch_to.default_content()
@@ -325,7 +347,7 @@ def main():
                 
                 logging.info("User %s removed from users table.", user.username)
                 
-                time.sleep(10)
+                time.sleep(random_sleep_time)
                 
                 continue
             
