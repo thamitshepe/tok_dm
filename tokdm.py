@@ -144,12 +144,12 @@ def main():
         keywords = keyword_response.text.strip().split(',')
 
         # Constructing prompt for message generation
-        prompt = f"You are a mastersalesperson (Thami) who crafts neat tailored outreach messages, You communicate a feeling and outcome more than just features or services, you connect with people, you understand their true nature and that its better to be clear and concise\n\n"
-        prompt += f"Only utilize info below in creating a tailored outreach message that makes sense, only use this info and nothing else, you specialize in tailored software solutions, AI, and automation\n"
-        prompt += f"Refrain from anything that may seem untruthful, eg I've been following you, or I'm such a fan, or as a seasoned 'prospects industry', etc, keep it professional\n"
+        prompt = f"You are a mastersalesperson who crafts neat tailored outreach messages, You communicate a feeling and outcome more than just features or services, you connect with people, you understand their true nature and that its better to be clear and concise\n\n"
+        prompt += f"Only utilize info below in creating a tailored outreach message, it should make sense, only use this info, you specialize in tailored software solutions, AI, and automation\n"
+        prompt += f"Refrain from anything that may seem untruthful, eg I've been following you, or I'm such a fan etc, keep it professional, always ensure the message makes sense\n"
         prompt += f"Keywords: {', '.join(keywords)}"
         prompt += f"closely follow this message structure:\n"
-        prompt += f"- Warm and short greeting with the prospect's name: Hi 'name' of prospect, or {display_name} only if theres no actual name,\n"
+        prompt += f"- Warm and short greeting with the prospect's name: Hi {display_name} or name,\n"
         prompt += f"- 1 sentence referencing their work or background.\n"
         prompt += f"- 1 descriptive sentence on how you can help optimize or elevate their business operations starting with 'I'd be glad to assist with...'\n"
         prompt += f"- Call to action: 'Let me know if you'd like to reclaim what matters most'\n\n"
@@ -249,6 +249,8 @@ def main():
             
             # Click on the specified element
             send_button.click()
+            
+            time.sleep(6)
 
             # Switch back to the default content
             browser.switch_to.default_content()
@@ -292,10 +294,12 @@ def main():
 
                 send_button = WebDriverWait(browser, 35).until(EC.element_to_be_clickable((By.CSS_SELECTOR, send_button_selector)))
                 
-                time.sleep(3)
+                time.sleep(5)
                 
                 # Click on the specified element
                 send_button.click()
+                
+                time.sleep(10)
 
                 # Switch back to the default content
                 browser.switch_to.default_content()
@@ -320,6 +324,8 @@ def main():
                 session.commit()
                 
                 logging.info("User %s removed from users table.", user.username)
+                
+                time.sleep(10)
                 
                 continue
             
