@@ -101,7 +101,6 @@ def main():
 
     # Check for existing cookies
     if load_cookies(browser):
-        time.sleep(5)
         browser.get("https://www.tiktok.com/login/phone-or-email")
         logging.info("Using existing cookies to open TikTok.")
 
@@ -229,20 +228,27 @@ def main():
 
         # Wait for the input area to be available
         try:
-            input_area_selector = "#main-content-messages > div.css-d0yksp-DivChatBox.ediam1h0 > div.css-fqfkc9-DivChatBottom.e1823izs0 > div > div.css-1a4kn3-DivEditorContainer.e1823izs1 > div > div.DraftEditor-root > div.DraftEditor-editorContainer > div"
+            input_area_selector = 'div[aria-label="Send a message..."]'
             input_area = WebDriverWait(browser, 35).until(EC.element_to_be_clickable((By.CSS_SELECTOR, input_area_selector)))
 
             # Click on the input area to focus it
             input_area.click()
-
-            # Type the generated message in the input area
-            input_area.send_keys(outreach_message)
 
             # Replace line breaks with spaces in the outreach message
             outreach_message = outreach_message.replace('\n', ' ')
 
             # Type the modified message in the input area
             input_area.send_keys(outreach_message)
+            
+            # Find the element to click on after typing the message
+            send_button_selector = '#main-content-messages > div.css-d0yksp-DivChatBox.ediam1h0 > div.css-fqfkc9-DivChatBottom.e1823izs0 > svg'
+
+            send_button = WebDriverWait(browser, 35).until(EC.element_to_be_clickable((By.CSS_SELECTOR, send_button_selector)))
+            
+            time.sleep(3)
+            
+            # Click on the specified element
+            send_button.click()
 
             # Switch back to the default content
             browser.switch_to.default_content()
@@ -275,14 +281,21 @@ def main():
                 # Click on the input area to focus it
                 input_area.click()
 
-                # Type the generated message in the input area
-                input_area.send_keys(outreach_message)
-
                 # Replace line breaks with spaces in the outreach message
                 outreach_message = outreach_message.replace('\n', ' ')
 
                 # Type the modified message in the input area
                 input_area.send_keys(outreach_message)
+                
+                # Find the element to click on after typing the message
+                send_button_selector = '#main-content-messages > div.css-d0yksp-DivChatBox.ediam1h0 > div.css-fqfkc9-DivChatBottom.e1823izs0 > svg'
+
+                send_button = WebDriverWait(browser, 35).until(EC.element_to_be_clickable((By.CSS_SELECTOR, send_button_selector)))
+                
+                time.sleep(3)
+                
+                # Click on the specified element
+                send_button.click()
 
                 # Switch back to the default content
                 browser.switch_to.default_content()
@@ -309,6 +322,8 @@ def main():
                 logging.info("User %s removed from users table.", user.username)
                 
                 continue
+            
+            
     # Close the browser and session
     browser.quit()
     session.close()
