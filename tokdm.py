@@ -4,6 +4,7 @@ import pickle
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions as EC
 from sqlalchemy import create_engine, Column, String, Integer
@@ -100,6 +101,7 @@ def main():
 
     # Check for existing cookies
     if load_cookies(browser):
+        time.sleep(5)
         browser.get("https://www.tiktok.com/login/phone-or-email")
         logging.info("Using existing cookies to open TikTok.")
 
@@ -226,36 +228,87 @@ def main():
         WebDriverWait(browser, 35).until(EC.frame_to_be_available_and_switch_to_it((By.CSS_SELECTOR, iframe_selector)))
 
         # Wait for the input area to be available
-        input_area_selector = "#main-content-messages > div.css-d0yksp-DivChatBox.ediam1h0 > div.css-fqfkc9-DivChatBottom.e1823izs0 > div > div.css-1a4kn3-DivEditorContainer.e1823izs1 > div > div.DraftEditor-root > div.DraftEditor-editorContainer > div"
-        input_area = WebDriverWait(browser, 35).until(EC.element_to_be_clickable((By.CSS_SELECTOR, input_area_selector)))
+        try:
+            input_area_selector = "#main-content-messages > div.css-d0yksp-DivChatBox.ediam1h0 > div.css-fqfkc9-DivChatBottom.e1823izs0 > div > div.css-1a4kn3-DivEditorContainer.e1823izs1 > div > div.DraftEditor-root > div.DraftEditor-editorContainer > div"
+            input_area = WebDriverWait(browser, 35).until(EC.element_to_be_clickable((By.CSS_SELECTOR, input_area_selector)))
 
-        # Click on the input area to focus it
-        input_area.click()
+            # Click on the input area to focus it
+            input_area.click()
 
-        # Type the generated message in the input area
-        input_area.send_keys(outreach_message)
+            # Type the generated message in the input area
+            input_area.send_keys(outreach_message)
 
-        # Replace line breaks with spaces in the outreach message
-        outreach_message = outreach_message.replace('\n', ' ')
+            # Replace line breaks with spaces in the outreach message
+            outreach_message = outreach_message.replace('\n', ' ')
 
-        # Type the modified message in the input area
-        input_area.send_keys(outreach_message)
+            # Type the modified message in the input area
+            input_area.send_keys(outreach_message)
 
-        # Switch back to the default content
-        browser.switch_to.default_content()
+            # Switch back to the default content
+            browser.switch_to.default_content()
 
-        # Add the user to the sent_users table
-        sent_user = SentUser(username=user.username)
-        session.add(sent_user)
-        session.commit()
-        logging.info("User %s added to sent_users table.", user.username)
+            # Add the user to the sent_users table
+            sent_user = SentUser(username=user.username)
+            session.add(sent_user)
+            session.commit()
+            logging.info("User %s added to sent_users table.", user.username)
 
-        # Delete the user from the users table
-        session.query(User).filter_by(username=user.username).delete()
-        session.commit()
-        
-        logging.info("User %s deleted from users table.", user.username)
+            # Delete the user from the users table
+            session.query(User).filter_by(username=user.username).delete()
+            session.commit()
+            
+            logging.info("User %s deleted from users table.", user.username)
 
+        except TimeoutException:
+            logging.warning("Input area did not show up within the specified time. Reloading the page.")
+            
+            # Reload the page
+            browser.refresh()
+            
+            # Wait for the page to load after refreshing
+            WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "body")))
+            
+            # Check if the input area is available after reloading
+            try:
+                input_area = WebDriverWait(browser, 20).until(EC.element_to_be_clickable((By.CSS_SELECTOR, input_area_selector)))
+
+                # Click on the input area to focus it
+                input_area.click()
+
+                # Type the generated message in the input area
+                input_area.send_keys(outreach_message)
+
+                # Replace line breaks with spaces in the outreach message
+                outreach_message = outreach_message.replace('\n', ' ')
+
+                # Type the modified message in the input area
+                input_area.send_keys(outreach_message)
+
+                # Switch back to the default content
+                browser.switch_to.default_content()
+
+                # Add the user to the sent_users table
+                sent_user = SentUser(username=user.username)
+                session.add(sent_user)
+                session.commit()
+                logging.info("User %s added to sent_users table.", user.username)
+
+                # Delete the user from the users table
+                session.query(User).filter_by(username=user.username).delete()
+                session.commit()
+                
+                logging.info("User %s deleted from users table.", user.username)
+                
+            except TimeoutException:
+                logging.error("Input area did not show up after reloading. Removing user %s from the users table.", user.username)
+                
+                # Remove the user from the users table
+                session.query(User).filter_by(username=user.username).delete()
+                session.commit()
+                
+                logging.info("User %s removed from users table.", user.username)
+                
+                continue
     # Close the browser and session
     browser.quit()
     session.close()
