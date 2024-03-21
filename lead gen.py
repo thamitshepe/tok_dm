@@ -20,6 +20,11 @@ class User(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     username = Column(String, unique=True)
+    
+class SentUser(Base):
+    __tablename__ = 'sent_users'
+    id = Column(Integer, primary_key=True)
+    username = Column(String, unique=True)
 
 # Create a session
 Session = sessionmaker(bind=engine)
@@ -116,10 +121,10 @@ def main():
     browser.get(url)
     logging.info("Scraping started from %s.", url)
     
-    time.sleep(17)
+    time.sleep(30)
 
     # Scroll to load more posts
-    for x in range(1, 30):
+    for x in range(1, 50):
         browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         print("Scrolling", x)
         time.sleep(15)
