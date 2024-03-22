@@ -28,13 +28,11 @@ Base = declarative_base()
 # Define ORM class for User
 class User(Base):
     __tablename__ = 'users'
-    id = Column(Integer, primary_key=True)
-    username = Column(String, unique=True)
+    username = Column(String, unique=True, primary_key=True)
     
 class SentUser(Base):
     __tablename__ = 'sent_users'
-    id = Column(Integer, primary_key=True)
-    username = Column(String, unique=True)
+    username = Column(String, unique=True, primary_key=True)
 
 # Create a session
 Session = sessionmaker(bind=engine)
@@ -98,7 +96,7 @@ def filter_non_bmp(text):
     return ''.join(char for char in text if ord(char) < 0x10000)
 
 # Function to send keys with a random delay between each keystroke
-def slow_send_keys(element, text, min_delay=0.1, max_delay=0.3):
+def slow_send_keys(element, text, min_delay=0.02, max_delay=0.2):
     for char in text:
         element.send_keys(char)
         delay = random.uniform(min_delay, max_delay)

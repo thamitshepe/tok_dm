@@ -18,13 +18,11 @@ Base = declarative_base()
 # Define ORM class for User
 class User(Base):
     __tablename__ = 'users'
-    id = Column(Integer, primary_key=True)
-    username = Column(String, unique=True)
+    username = Column(String, unique=True, primary_key=True)
     
 class SentUser(Base):
     __tablename__ = 'sent_users'
-    id = Column(Integer, primary_key=True)
-    username = Column(String, unique=True)
+    username = Column(String, unique=True, primary_key=True)
 
 # Create a session
 Session = sessionmaker(bind=engine)
