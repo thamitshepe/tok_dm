@@ -66,6 +66,16 @@ def load_cookies(driver):
         return False
 
 def initialize_browser():
+    
+    # Define custom user-agent string
+    user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
+    
+    # Define options for Chrome WebDriver
+    options = webdriver.ChromeOptions()
+    
+    # Add the user-agent to the options
+    options.add_argument(f"user-agent={user_agent}")
+    
     # Use webdriver_manager to download and install the compatible ChromeDriver version
     chrome_driver_path = ChromeDriverManager().install()
 
@@ -96,7 +106,7 @@ def filter_non_bmp(text):
     return ''.join(char for char in text if ord(char) < 0x10000)
 
 # Function to send keys with a random delay between each keystroke
-def slow_send_keys(element, text, min_delay=0.005, max_delay=0.01):
+def slow_send_keys(element, text, min_delay=0.0005, max_delay=0.002):
     for char in text:
         element.send_keys(char)
         delay = random.uniform(min_delay, max_delay)
@@ -135,42 +145,51 @@ def main():
         
     # Function to generate tailored outreach message using Gemini API
     def generate_outreach_message(display_name, bio, post_descriptions):
-        # Configure API key
-        GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-        genai.configure(api_key=GOOGLE_API_KEY)
+        try:
+            # Configure API key
+            GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+            genai.configure(api_key=GOOGLE_API_KEY)
+            
+            # Construct prompt for keyword extraction
+            keyword_prompt = f"Extract any useful keywords and info and the persons name for creating an effective, no brainer outreach message from the display name, bio and posts provided below, return in comma seperated list\n\n"
+            keyword_prompt += f"Bio: {bio}\n"
+            keyword_prompt += f"Display Name: {display_name}\n"
+            keyword_prompt += f"Username: {user.username}\n"
+            keyword_prompt += f"Post Descriptions:\n"
+            for i, description in enumerate(post_descriptions, start=1):
+                keyword_prompt += f"{i}. {description}\n"
+            keyword_prompt += "\nKeywords:"
+
+            # Call Gemini API for keyword extraction
+            keyword_response = genai.GenerativeModel('gemini-pro').generate_content(keyword_prompt)
+
+            # Extracting keywords from the response
+            keywords = keyword_response.text.strip().split(',')
+
+            # Constructing prompt for message generation
+            prompt = f"You are a mastersalesperson who crafts neat tailored outreach messages, You communicate a feeling and outcome more than just features or services, you connect with people, you understand their true nature and that its better to be clear and concise\n\n"
+            prompt += f"Only utilize info below in creating a tailored outreach message, it should make sense, only use this info, you specialize in tailored software solutions, AI, and automation\n"
+            prompt += f"Refrain from anything that may seem untruthful, eg I've been following you, or I'm such a fan etc, keep it professional, always ensure the message makes sense\n"
+            prompt += f"Keywords: {', '.join(keywords)}"
+            prompt += f"closely follow this message structure:\n"
+            prompt += f"- Warm and short greeting with the prospect's name from {display_name} or possibly from other info provided, if no name just put {user.username}: 'Hi name',\n"
+            prompt += f"- 1 sentence referencing their work or background.\n"
+            prompt += f"- 1 descriptive sentence on how you can help optimize or elevate their business operations starting with 'I'd be glad to assist with...'\n"
+            prompt += f"- Call to action: 'Let me know if you'd like to reclaim what matters most'\n\n"
+
+            # Call Gemini API for message generation
+            message_response = genai.GenerativeModel('gemini-pro').generate_content(prompt)
+
+            # Parsing and returning the generated message
+            generated_message = message_response.text.strip()
+            return generated_message
         
-        # Construct prompt for keyword extraction
-        keyword_prompt = f"Extract any useful keywords and info and the person's name for creating an effective, no brainer outreach message from the display name, bio, and posts provided below, return in comma-separated list\n\n"
-        keyword_prompt += f"Bio: {bio}\n"
-        keyword_prompt += f"Display Name: {display_name}\n"
-        keyword_prompt += f"Post Descriptions:\n"
-        for i, description in enumerate(post_descriptions, start=1):
-            keyword_prompt += f"{i}. {description}\n"
-        keyword_prompt += "\nKeywords:"
-
-        # Call Gemini API for keyword extraction
-        keyword_response = genai.GenerativeModel('gemini-pro').generate_content(keyword_prompt)
-
-        # Extracting keywords from the response
-        keywords = keyword_response.text.strip().split(',')
-
-        # Constructing prompt for message generation
-        prompt = f"You are a mastersalesperson who crafts neat tailored outreach messages, You communicate a feeling and outcome more than just features or services, you connect with people, you understand their true nature and that its better to be clear and concise\n\n"
-        prompt += f"Only utilize info below in creating a tailored outreach message, it should make sense, only use this info, you specialize in tailored software solutions, AI, and automation\n"
-        prompt += f"Refrain from anything that may seem untruthful, eg I've been following you, or I'm such a fan etc, keep it professional, always ensure the message makes sense\n"
-        prompt += f"Keywords: {', '.join(keywords)}"
-        prompt += f"closely follow this message structure:\n"
-        prompt += f"- Warm and short greeting with the prospect's name: Hi {display_name} or name,\n"
-        prompt += f"- 1 sentence referencing their work or background.\n"
-        prompt += f"- 1 descriptive sentence on how you can help optimize or elevate their business operations starting with 'I'd be glad to assist with...'\n"
-        prompt += f"- Call to action: 'Let me know if you'd like to reclaim what matters most'\n\n"
-
-        # Call Gemini API for message generation
-        message_response = genai.GenerativeModel('gemini-pro').generate_content(prompt)
-
-        # Parsing and returning the generated message
-        generated_message = message_response.text.strip()
-        return generated_message
+        except ValueError as ve:
+            logging.error("Error extracting keywords: %s", ve)
+            return None
+        except Exception as e:
+            logging.error("Error generating outreach message: %s", e)
+            return None
 
     # Limit the number of users to process to 25
     users = session.query(User).limit(25).all()
@@ -220,6 +239,19 @@ def main():
 
         # Generate tailored outreach message
         outreach_message = generate_outreach_message(display_name, bio, post_descriptions)
+        
+        # Check if the outreach message was generated successfully
+        if outreach_message is None:
+            logging.error("Skipping user %s due to error in generating outreach message.", user.username)
+            
+            # Delete the user from the users table
+            session.query(User).filter_by(username=user.username).delete()
+            session.commit()
+            
+            logging.info("User %s deleted from users table.", user.username)
+            
+            continue
+        
         logging.info("Generated message for user: %s", user.username)
         logging.info("Outreach Message: %s", outreach_message)
         
