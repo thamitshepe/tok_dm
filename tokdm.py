@@ -96,7 +96,7 @@ def filter_non_bmp(text):
     return ''.join(char for char in text if ord(char) < 0x10000)
 
 # Function to send keys with a random delay between each keystroke
-def slow_send_keys(element, text, min_delay=0.02, max_delay=0.2):
+def slow_send_keys(element, text, min_delay=0.005, max_delay=0.01):
     for char in text:
         element.send_keys(char)
         delay = random.uniform(min_delay, max_delay)
