@@ -194,7 +194,7 @@ def main():
 
             # Constructing prompt for message generation
             prompt = f"Craft a neat tailored outreach message, You communicate a feeling and outcome more than just features or services, you connect with people, you understand their true nature and that its better to be clear and concise\n\n"
-            prompt += f"Only utilize info from keywords in creating a tailored outreach message, it should make sense, only use this info\n"
+            prompt += f"Only utilize info from keywords in creating a tailored outreach message, it should make sense, only use this info, never include any special characters in the generated message eg #, *, [, +, etc\n"
             prompt += f"Refrain from anything that may seem untruthful, eg I've been following you, or I'm such a fan etc, keep it professional, always ensure the message makes sense, refrain from any placeholders\n"
             prompt += f"Outreach message is for services around tailored software solutions, ai integration and automation for my business at Thami.ai, dont mention the business though, focus on them\n"
             prompt += f"Keywords: {', '.join(keywords)}"
@@ -303,12 +303,16 @@ def main():
             like_button = browser.find_element(By.CSS_SELECTOR, like_button_selector)
             browser.execute_script("arguments[0].click();", like_button)
 
-            # Extract text from the first post description
-            first_post_description = browser.find_element(By.CSS_SELECTOR, "h1._ap3a._aaco._aacu._aacx._aad7._aade").text
+            try:
+                # Extract text from the first post description
+                first_post_description = browser.find_element(By.CSS_SELECTOR, "h1._ap3a._aaco._aacu._aacx._aad7._aade").text
 
-            # Initialize a list to store post descriptions
-            post_descriptions = [first_post_description]
-
+                # Initialize a list to store post descriptions
+                post_descriptions = [first_post_description]
+            except TimeoutException:
+                first_post_description = "First post description not present"
+                post_descriptions = [first_post_description]
+            
             # Check if the next button is present
             for i in range(7):
                 try:
@@ -316,10 +320,13 @@ def main():
                     next_button_xpath = "div._aaqg._aaqh > button"
                     next_button = browser.find_element(By.CSS_SELECTOR, next_button_xpath)
                     browser.execute_script("arguments[0].click();", next_button)
-                    time.sleep(random.uniform(4, 8))  # Random wait between clicks
-                    post_description = browser.find_element(By.CSS_SELECTOR, "h1._ap3a._aaco._aacu._aacx._aad7._aade").text
-                    post_descriptions.append(post_description)
-                
+                    time.sleep(random.uniform(1, 4))  # Random wait between clicks
+                    try:
+                        post_description = browser.find_element(By.CSS_SELECTOR, "h1._ap3a._aaco._aacu._aacx._aad7._aade").text
+                        post_descriptions.append(post_description)
+                    except NoSuchElementException:
+                        post_description = "Description not present"
+                        
                     # Randomly decide whether to click like or not
                     if random.choice([True, False]):
                         # Click the like button
