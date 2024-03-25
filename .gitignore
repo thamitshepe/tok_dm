@@ -5,3 +5,5 @@ outreach-ai.py
 model-arch.py
 tiktok_cookies.pkl
 tokvenv
+instagram_cookies.pkl
+instagram.db

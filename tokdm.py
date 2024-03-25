@@ -169,7 +169,7 @@ def main():
             # Constructing prompt for message generation
             prompt = f"You are a mastersalesperson who crafts neat tailored outreach messages, You communicate a feeling and outcome more than just features or services, you connect with people, you understand their true nature and that its better to be clear and concise\n\n"
             prompt += f"Only utilize info below in creating a tailored outreach message, it should make sense, only use this info, you specialize in tailored software solutions, AI, and automation\n"
-            prompt += f"Refrain from anything that may seem untruthful, eg I've been following you, or I'm such a fan etc, keep it professional, always ensure the message makes sense\n"
+            prompt += f"Refrain from anything that may seem untruthful, eg I've been following you, or I'm such a fan etc, keep it professional, always ensure the message makes sense, refrain from any placeholders\n"
             prompt += f"Keywords: {', '.join(keywords)}"
             prompt += f"closely follow this message structure:\n"
             prompt += f"- Warm and short greeting with the prospect's name from {display_name} or possibly from other info provided, if no name just put {user.username}: 'Hi name',\n"
