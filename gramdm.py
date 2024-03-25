@@ -1,7 +1,7 @@
 import time
 import random
 import logging
-import signal
+import msvcrt
 import pickle
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -265,187 +265,226 @@ def main():
         # Global flag to indicate if Ctrl+N was pressed
         ctrl_n_pressed = False
 
-        # Signal handler for Ctrl+C (SIGINT)
-        def signal_handler(sig, frame):
+        # Function to check if Ctrl+N was pressed
+        def check_ctrl_n():
             global ctrl_n_pressed
-            if sig == signal.SIGINT:
-                print("Ctrl+C (SIGINT) detected. Exiting gracefully.")
-                # Perform cleanup and exit here
-                exit()
-
-        # Signal handler for Ctrl+N
-        def ctrl_n_handler(signum, frame):
-            global ctrl_n_pressed
-            print("Ctrl+N detected.")
-            ctrl_n_pressed = True
-
-        # Register the signal handlers
-        signal.signal(signal.SIGINT, signal_handler)
-        signal.signal(signal.SIGUSR1, ctrl_n_handler)  # Register Ctrl+N signal
+            if msvcrt.kbhit():
+                key = msvcrt.getch()
+                if key == b'\x0e':  # Ctrl+N
+                    ctrl_n_pressed = True
 
         # Your main code loop
         while True:
             # Check if Ctrl+N was pressed
+            check_ctrl_n()
             if ctrl_n_pressed:
                 print("Handling Ctrl+N...")
-                
-                # Delete user from the users table
-                session.query(User).filter_by(username=user.username).delete()
-                session.commit()
-                logging.info("User %s deleted from users table.", user.username)
-                
+                # Perform actions to delete user from users table and move to next
                 # Reset the flag after handling
                 ctrl_n_pressed = False
-                
-                # Move to the next user
-                break  # Exit the loop to proceed with the next user
-
-
             else:
                 # Your existing code logic goes here
-                pass
 
 
-        # Extracting the text
-        try:
-            display_name_element = WebDriverWait(browser, 20).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, "span.x1lliihq.x1plvlek.xryxfnj.x1n2onr6.x193iq5w.xeuugli.x1fj9vlw.x13faqbe.x1vvkbs.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x1i0vuye.xvs91rp.x1s688f.x5n08af.x10wh9bi.x1wdrske.x8viiok.x18hxmgj"))
-            )
-            display_name = display_name_element.text
-        except TimeoutException:
-            display_name = "Display name not present"
-
-        try:
-            industry_role_element = WebDriverWait(browser, 20).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, "div._ap3a._aaco._aacu._aacy._aad6._aade"))
-            )
-            industry_role = industry_role_element.text
-        except TimeoutException:
-            industry_role = "Industry role not present"
-
-        try:
-            bio_element = WebDriverWait(browser, 20).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, "h1._ap3a._aaco._aacu._aacx._aad6._aade"))
-            )
-            bio = bio_element.text
-        except TimeoutException:
-            bio = "Bio not present"
-
-
-        # Check if the post container exists, if not, return "No post descriptions present"
-        try:
-            post_container = WebDriverWait(browser, 10).until(
-                EC.presence_of_element_located((By.XPATH, "/html/body/div[2]/div/div/div[2]/div/div/div[1]/div[1]/div[2]/div[2]/section/main/div/div[3]/div/div[1]/div[1]/a"))
-            )
-        except TimeoutException:
-            post_descriptions = "No post descriptions present"
-
-        # Click on the post container
-        post_container.click()
-
-        # Wait for a random time
-        time.sleep(random.uniform(2, 8))
-
-        # Click the like button
-        like_button_selector = "body > div.x1n2onr6.xzkaem6 > div.x9f619.x1n2onr6.x1ja2u2z > div > div.x1uvtmcs.x4k7w5x.x1h91t0o.x1beo9mf.xaigb6o.x12ejxvf.x3igimt.xarpa2k.xedcshv.x1lytzrv.x1t2pt76.x7ja8zs.x1n2onr6.x1qrby5j.x1jfb8zj > div > div > div > div > div.xb88tzc.xw2csxc.x1odjw0f.x5fp0pe.x1qjc9v5.xjbqb8w.x1lcm9me.x1yr5g0i.xrt01vj.x10y3i5r.xr1yuqi.xkrivgy.x4ii5y1.x1gryazu.x15h9jz8.x47corl.xh8yej3.xir0mxb.x1juhsu6 > div > article > div > div.x1qjc9v5.x972fbf.xcfux6l.x1qhh985.xm0m39n.x9f619.x78zum5.xdt5ytf.x1iyjqo2.x5wqa0o.xln7xf2.xk390pu.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.x65f84u.x1vq45kp.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1n2onr6.x11njtxf > div > div > div.x78zum5.xdt5ytf.x1q2y9iw.x1n2onr6.xh8yej3.x9f619.x1iyjqo2.x18l3tf1.x26u7qi.xy80clv.xexx8yu.x4uap5.x18d9i69.xkhd6sd > section.x78zum5.x1q0g3np.xwib8y2.x1yrsyyn.x1xp8e9x.x13fuv20.x178xt8z.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xo1ph6p.x1pi30zi.x1swvt13 > span.x1rg5ohu.xp7jhwk > div"
-        like_button = browser.find_element(By.CSS_SELECTOR, like_button_selector)
-        browser.execute_script("arguments[0].click();", like_button)
-
-        # Extract text from the first post description
-        first_post_description = browser.find_element(By.CSS_SELECTOR, "h1._ap3a._aaco._aacu._aacx._aad7._aade").text
-
-        # Initialize a list to store post descriptions
-        post_descriptions = [first_post_description]
-
-        # Check if the next button is present
-        for i in range(7):
-            try:
-                time.sleep(4)
-                next_button_xpath = "div._aaqg._aaqh > button"
-                next_button = browser.find_element(By.CSS_SELECTOR, next_button_xpath)
-                browser.execute_script("arguments[0].click();", next_button)
-                time.sleep(random.uniform(4, 8))  # Random wait between clicks
-                post_description = browser.find_element(By.CSS_SELECTOR, "h1._ap3a._aaco._aacu._aacx._aad7._aade").text
-                post_descriptions.append(post_description)
-                
-                # Randomly decide whether to click like or not
-                if random.choice([True, False]):
-                    # Click the like button
-                    like_button_selector = "body > div.x1n2onr6.xzkaem6 > div.x9f619.x1n2onr6.x1ja2u2z > div > div.x1uvtmcs.x4k7w5x.x1h91t0o.x1beo9mf.xaigb6o.x12ejxvf.x3igimt.xarpa2k.xedcshv.x1lytzrv.x1t2pt76.x7ja8zs.x1n2onr6.x1qrby5j.x1jfb8zj > div > div > div > div > div.xb88tzc.xw2csxc.x1odjw0f.x5fp0pe.x1qjc9v5.xjbqb8w.x1lcm9me.x1yr5g0i.xrt01vj.x10y3i5r.xr1yuqi.xkrivgy.x4ii5y1.x1gryazu.x15h9jz8.x47corl.xh8yej3.xir0mxb.x1juhsu6 > div > article > div > div.x1qjc9v5.x972fbf.xcfux6l.x1qhh985.xm0m39n.x9f619.x78zum5.xdt5ytf.x1iyjqo2.x5wqa0o.xln7xf2.xk390pu.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.x65f84u.x1vq45kp.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1n2onr6.x11njtxf > div > div > div.x78zum5.xdt5ytf.x1q2y9iw.x1n2onr6.xh8yej3.x9f619.x1iyjqo2.x18l3tf1.x26u7qi.xy80clv.xexx8yu.x4uap5.x18d9i69.xkhd6sd > section.x78zum5.x1q0g3np.xwib8y2.x1yrsyyn.x1xp8e9x.x13fuv20.x178xt8z.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xo1ph6p.x1pi30zi.x1swvt13 > span.x1rg5ohu.xp7jhwk > div"
-                    like_button = browser.find_element(By.CSS_SELECTOR, like_button_selector)
-                    browser.execute_script("arguments[0].click();", like_button)
-                
-            except NoSuchElementException:
-                # If next button is not present, break the loop
-                break
-
-        print(display_name)
-        print(industry_role)
-        print(bio)
-        print(post_descriptions)
-        
-        time.sleep(random.uniform(2, 8))
-
-        # Generate a random sleep time between 10 and 25 seconds
-        random_sleep = random.uniform(8, 35)
-
-        # Generate tailored outreach message
-        outreach_message = generate_outreach_message(display_name, industry_role, bio, post_descriptions)
-        
-        # Check if the outreach message was generated successfully
-        if outreach_message is None:
-            logging.error("Skipping user %s due to error in generating outreach message.", user.username)
-            
-            # Delete the user from the users table
-            session.query(User).filter_by(username=user.username).delete()
-            session.commit()
-            
-            logging.info("User %s deleted from users table.", user.username)
-            
-            continue
-        
-        logging.info("Generated message for user: %s", user.username)
-        logging.info("Outreach Message: %s", outreach_message)
-        
-        # Generate the URL for the messages page
-        messages_url = f"https://www.instagram.com/m/{user.username}"
-
-        # Navigate to the messages page
-        browser.get(messages_url)
-        logging.info(f"Visiting messages page for user: {user.username}")
-
-        # Wait for the iframe to be present
-        try:
-            iframe = WebDriverWait(browser, 30).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, "iframe[title='fr']"))
-            )
-            # Switch to the iframe
-            browser.switch_to.frame(iframe)
-            logging.info("Switched to messages iframe.")
-
-            # Check if the second element is present
-            second_element_present = False
-            try:
-                second_element = browser.find_element(By.CSS_SELECTOR, "span.x1lliihq.x1plvlek.xryxfnj.x1n2onr6.x193iq5w.xeuugli.x1fj9vlw.x13faqbe.x1vvkbs.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x1i0vuye.xvs91rp.xo1l8bm.x1roi4f4.x2b8uid.x1tu3fi.x3x7a5m.x10wh9bi.x1wdrske.x8viiok.x18hxmgj")
-                second_element_present = True
-            except NoSuchElementException:
-                pass
-
-            if not second_element_present:
-                # Reload the page and check again
-                browser.refresh()
-                time.sleep(random_sleep)
-
-                # Check if the second element is present after reloading
+                # Extracting the text
                 try:
-                    second_element = browser.find_element(By.CSS_SELECTOR, "span.x1lliihq.x1plvlek.xryxfnj.x1n2onr6.x193iq5w.xeuugli.x1fj9vlw.x13faqbe.x1vvkbs.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x1i0vuye.xvs91rp.xo1l8bm.x1roi4f4.x2b8uid.x1tu3fi.x3x7a5m.x10wh9bi.x1wdrske.x8viiok.x18hxmgj")
-                    second_element_present = True
+                    display_name_element = WebDriverWait(browser, 20).until(
+                        EC.presence_of_element_located((By.CSS_SELECTOR, "span.x1lliihq.x1plvlek.xryxfnj.x1n2onr6.x193iq5w.xeuugli.x1fj9vlw.x13faqbe.x1vvkbs.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x1i0vuye.xvs91rp.x1s688f.x5n08af.x10wh9bi.x1wdrske.x8viiok.x18hxmgj"))
+                    )
+                    display_name = display_name_element.text
+                except TimeoutException:
+                    display_name = "Display name not present"
+
+                try:
+                    industry_role_element = WebDriverWait(browser, 20).until(
+                        EC.presence_of_element_located((By.CSS_SELECTOR, "div._ap3a._aaco._aacu._aacy._aad6._aade"))
+                    )
+                    industry_role = industry_role_element.text
+                except TimeoutException:
+                    industry_role = "Industry role not present"
+
+                try:
+                    bio_element = WebDriverWait(browser, 20).until(
+                        EC.presence_of_element_located((By.CSS_SELECTOR, "h1._ap3a._aaco._aacu._aacx._aad6._aade"))
+                    )
+                    bio = bio_element.text
+                except TimeoutException:
+                    bio = "Bio not present"
+
+
+                # Check if the post container exists, if not, return "No post descriptions present"
+                try:
+                    post_container = WebDriverWait(browser, 10).until(
+                        EC.presence_of_element_located((By.XPATH, "/html/body/div[2]/div/div/div[2]/div/div/div[1]/div[1]/div[2]/div[2]/section/main/div/div[3]/div/div[1]/div[1]/a"))
+                    )
+                except TimeoutException:
+                    post_descriptions = "No post descriptions present"
+
+                # Click on the post container
+                post_container.click()
+
+                # Wait for a random time
+                time.sleep(random.uniform(2, 8))
+
+                # Click the like button
+                like_button_selector = "body > div.x1n2onr6.xzkaem6 > div.x9f619.x1n2onr6.x1ja2u2z > div > div.x1uvtmcs.x4k7w5x.x1h91t0o.x1beo9mf.xaigb6o.x12ejxvf.x3igimt.xarpa2k.xedcshv.x1lytzrv.x1t2pt76.x7ja8zs.x1n2onr6.x1qrby5j.x1jfb8zj > div > div > div > div > div.xb88tzc.xw2csxc.x1odjw0f.x5fp0pe.x1qjc9v5.xjbqb8w.x1lcm9me.x1yr5g0i.xrt01vj.x10y3i5r.xr1yuqi.xkrivgy.x4ii5y1.x1gryazu.x15h9jz8.x47corl.xh8yej3.xir0mxb.x1juhsu6 > div > article > div > div.x1qjc9v5.x972fbf.xcfux6l.x1qhh985.xm0m39n.x9f619.x78zum5.xdt5ytf.x1iyjqo2.x5wqa0o.xln7xf2.xk390pu.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.x65f84u.x1vq45kp.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1n2onr6.x11njtxf > div > div > div.x78zum5.xdt5ytf.x1q2y9iw.x1n2onr6.xh8yej3.x9f619.x1iyjqo2.x18l3tf1.x26u7qi.xy80clv.xexx8yu.x4uap5.x18d9i69.xkhd6sd > section.x78zum5.x1q0g3np.xwib8y2.x1yrsyyn.x1xp8e9x.x13fuv20.x178xt8z.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xo1ph6p.x1pi30zi.x1swvt13 > span.x1rg5ohu.xp7jhwk > div"
+                like_button = browser.find_element(By.CSS_SELECTOR, like_button_selector)
+                browser.execute_script("arguments[0].click();", like_button)
+
+                # Extract text from the first post description
+                first_post_description = browser.find_element(By.CSS_SELECTOR, "h1._ap3a._aaco._aacu._aacx._aad7._aade").text
+
+                # Initialize a list to store post descriptions
+                post_descriptions = [first_post_description]
+
+                # Check if the next button is present
+                for i in range(7):
+                    try:
+                        time.sleep(4)
+                        next_button_xpath = "div._aaqg._aaqh > button"
+                        next_button = browser.find_element(By.CSS_SELECTOR, next_button_xpath)
+                        browser.execute_script("arguments[0].click();", next_button)
+                        time.sleep(random.uniform(4, 8))  # Random wait between clicks
+                        post_description = browser.find_element(By.CSS_SELECTOR, "h1._ap3a._aaco._aacu._aacx._aad7._aade").text
+                        post_descriptions.append(post_description)
+                        
+                        # Randomly decide whether to click like or not
+                        if random.choice([True, False]):
+                            # Click the like button
+                            like_button_selector = "body > div.x1n2onr6.xzkaem6 > div.x9f619.x1n2onr6.x1ja2u2z > div > div.x1uvtmcs.x4k7w5x.x1h91t0o.x1beo9mf.xaigb6o.x12ejxvf.x3igimt.xarpa2k.xedcshv.x1lytzrv.x1t2pt76.x7ja8zs.x1n2onr6.x1qrby5j.x1jfb8zj > div > div > div > div > div.xb88tzc.xw2csxc.x1odjw0f.x5fp0pe.x1qjc9v5.xjbqb8w.x1lcm9me.x1yr5g0i.xrt01vj.x10y3i5r.xr1yuqi.xkrivgy.x4ii5y1.x1gryazu.x15h9jz8.x47corl.xh8yej3.xir0mxb.x1juhsu6 > div > article > div > div.x1qjc9v5.x972fbf.xcfux6l.x1qhh985.xm0m39n.x9f619.x78zum5.xdt5ytf.x1iyjqo2.x5wqa0o.xln7xf2.xk390pu.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.x65f84u.x1vq45kp.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1n2onr6.x11njtxf > div > div > div.x78zum5.xdt5ytf.x1q2y9iw.x1n2onr6.xh8yej3.x9f619.x1iyjqo2.x18l3tf1.x26u7qi.xy80clv.xexx8yu.x4uap5.x18d9i69.xkhd6sd > section.x78zum5.x1q0g3np.xwib8y2.x1yrsyyn.x1xp8e9x.x13fuv20.x178xt8z.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xo1ph6p.x1pi30zi.x1swvt13 > span.x1rg5ohu.xp7jhwk > div"
+                            like_button = browser.find_element(By.CSS_SELECTOR, like_button_selector)
+                            browser.execute_script("arguments[0].click();", like_button)
+                        
+                    except NoSuchElementException:
+                        # If next button is not present, break the loop
+                        break
+
+                print(display_name)
+                print(industry_role)
+                print(bio)
+                print(post_descriptions)
+                
+                time.sleep(random.uniform(2, 8))
+
+                # Generate a random sleep time between 10 and 25 seconds
+                random_sleep = random.uniform(8, 35)
+
+                # Generate tailored outreach message
+                outreach_message = generate_outreach_message(display_name, industry_role, bio, post_descriptions)
+                
+                # Check if the outreach message was generated successfully
+                if outreach_message is None:
+                    logging.error("Skipping user %s due to error in generating outreach message.", user.username)
+                    
+                    # Delete the user from the users table
+                    session.query(User).filter_by(username=user.username).delete()
+                    session.commit()
+                    
+                    logging.info("User %s deleted from users table.", user.username)
+                    
+                    continue
+                
+                logging.info("Generated message for user: %s", user.username)
+                logging.info("Outreach Message: %s", outreach_message)
+                
+                # Generate the URL for the messages page
+                messages_url = f"https://www.instagram.com/m/{user.username}"
+
+                # Navigate to the messages page
+                browser.get(messages_url)
+                logging.info(f"Visiting messages page for user: {user.username}")
+
+                # Wait for the iframe to be present
+                try:
+                    iframe = WebDriverWait(browser, 30).until(
+                        EC.presence_of_element_located((By.CSS_SELECTOR, "iframe[title='fr']"))
+                    )
+                    # Switch to the iframe
+                    browser.switch_to.frame(iframe)
+                    logging.info("Switched to messages iframe.")
+
+                    # Check if the second element is present
+                    second_element_present = False
+                    try:
+                        second_element = browser.find_element(By.CSS_SELECTOR, "span.x1lliihq.x1plvlek.xryxfnj.x1n2onr6.x193iq5w.xeuugli.x1fj9vlw.x13faqbe.x1vvkbs.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x1i0vuye.xvs91rp.xo1l8bm.x1roi4f4.x2b8uid.x1tu3fi.x3x7a5m.x10wh9bi.x1wdrske.x8viiok.x18hxmgj")
+                        second_element_present = True
+                    except NoSuchElementException:
+                        pass
+
+                    if not second_element_present:
+                        # Reload the page and check again
+                        browser.refresh()
+                        time.sleep(random_sleep)
+
+                        # Check if the second element is present after reloading
+                        try:
+                            second_element = browser.find_element(By.CSS_SELECTOR, "span.x1lliihq.x1plvlek.xryxfnj.x1n2onr6.x193iq5w.xeuugli.x1fj9vlw.x13faqbe.x1vvkbs.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x1i0vuye.xvs91rp.xo1l8bm.x1roi4f4.x2b8uid.x1tu3fi.x3x7a5m.x10wh9bi.x1wdrske.x8viiok.x18hxmgj")
+                            second_element_present = True
+                        except NoSuchElementException:
+                            pass
+
+                        if not second_element_present:
+                            # If second element is still not present, skip and delete user
+                            logging.warning(f"Second element not found for user: {user.username}. Skipping and deleting.")
+                            
+                            # Delete user from users table
+                            session.query(User).filter_by(username=user.username).delete()
+                            session.commit()
+                            logging.info(f"User {user.username} deleted from users table.")
+                            
+                            continue
+                except TimeoutException:
+                    logging.error("Timeout waiting for the iframe to be present.")
+                    # Handle the exception or log the error as needed
+                    
+                # Check if the input area is present
+                input_area_present = False
+                try:
+                    input_area = WebDriverWait(browser, 45).until(EC.element_to_be_clickable((By.CSS_SELECTOR, 'div[aria-label="Message"]')))
+                    input_area_present = True
+                except TimeoutException:
+                    pass
+
+                if not input_area_present:
+                    # Reload the page and check again
+                    browser.refresh()
+                    time.sleep(random_sleep)
+
+                    # Check if the input area is present after reloading
+                    try:
+                        input_area = WebDriverWait(browser, 45).until(EC.element_to_be_clickable((By.CSS_SELECTOR, 'div[aria-label="Message"]')))
+                        input_area_present = True
+                    except TimeoutException:
+                        pass
+
+                    if not input_area_present:
+                        # If input area is still not present, skip and delete user
+                        logging.warning(f"Input area not found for user: {user.username}. Skipping and deleting.")
+                        
+                        # Delete user from users table
+                        session.query(User).filter_by(username=user.username).delete()
+                        session.commit()
+                        logging.info(f"User {user.username} deleted from users table.")
+                        
+                        continue
+                    
+                    
+                # Check if message sent indicator is present
+                message_sent_indicator_present = False
+                try:
+                    message_sent_indicator = browser.find_element(By.CSS_SELECTOR, 'div.x1tlxs6b.x1g8br2z.x1gn5b1j.x230xth.x14ctfv.x1okitfd.x6ikm8r.x10wlt62.x1mzt3pk.x1y1aw1k.xn6708d.xwib8y2.x1ye3gou.x1n2onr6.x13faqbe.x1vjfegm')
+                    message_sent_indicator_present = True
                 except NoSuchElementException:
                     pass
 
-                if not second_element_present:
-                    # If second element is still not present, skip and delete user
-                    logging.warning(f"Second element not found for user: {user.username}. Skipping and deleting.")
+                if message_sent_indicator_present:
+                    # If message sent before, add user to sent_users table and delete from users table
+                    logging.info(f"Message previously sent for user: {user.username}.")
+                    
+                    # Add user to sent_users table (pseudo code, replace with actual SQL query)
+                    session.add(SentUser(username=user.username))
+                    session.commit()
+                    logging.info(f"User {user.username} added to sent_users table.")
                     
                     # Delete user from users table
                     session.query(User).filter_by(username=user.username).delete()
@@ -453,113 +492,54 @@ def main():
                     logging.info(f"User {user.username} deleted from users table.")
                     
                     continue
-        except TimeoutException:
-            logging.error("Timeout waiting for the iframe to be present.")
-            # Handle the exception or log the error as needed
-            
-        # Check if the input area is present
-        input_area_present = False
-        try:
-            input_area = WebDriverWait(browser, 45).until(EC.element_to_be_clickable((By.CSS_SELECTOR, 'div[aria-label="Message"]')))
-            input_area_present = True
-        except TimeoutException:
-            pass
+                else:
+                    logging.info(f"No message sent previously for user: {user.username}. Proceeding to send message.")
 
-        if not input_area_present:
-            # Reload the page and check again
-            browser.refresh()
-            time.sleep(random_sleep)
+                # Click on the input area to focus it
+                input_area.click()
 
-            # Check if the input area is present after reloading
-            try:
-                input_area = WebDriverWait(browser, 45).until(EC.element_to_be_clickable((By.CSS_SELECTOR, 'div[aria-label="Message"]')))
-                input_area_present = True
-            except TimeoutException:
-                pass
+                # Replace line breaks with spaces in the outreach message
+                outreach_message = outreach_message.replace('\n', ' ')
+                message = filter_non_bmp(outreach_message)
 
-            if not input_area_present:
-                # If input area is still not present, skip and delete user
-                logging.warning(f"Input area not found for user: {user.username}. Skipping and deleting.")
+                # Use the slow_send_keys function to send the filtered outreach message
+                slow_send_keys(input_area, message)
                 
-                # Delete user from users table
-                session.query(User).filter_by(username=user.username).delete()
-                session.commit()
-                logging.info(f"User {user.username} deleted from users table.")
+                time.sleep(random.uniform(2, 8))
+
+                # Find the send button
+                send_button_selector = 'div.x1i10hfl.xjqpnuy.xa49m3k.xqeqjp1.x2hbi6w.xdl72j9.x2lah0s.xe8uvvx.xdj266r.xat24cr.x1mh8g0r.x2lwn1j.xeuugli.x1hl2dhg.xggy1nq.x1ja2u2z.x1t137rt.x1q0g3np.x1lku1pv.x1a2a7pz.x6s0dn4.xjyslct.x1ejq31n.xd10rxx.x1sy0etr.x17r0tee.x9f619.x1ypdohk.x1f6kntn.xwhw2v2.xl56j7k.x17ydfre.x2b8uid.xlyipyv.x87ps6o.x14atkfc.xcdnw81.x1i0vuye.xjbqb8w.xm3z3ea.x1x8b98j.x131883w.x16mih1h.x972fbf.xcfux6l.x1qhh985.xm0m39n.xt0psk2.xt7dq6l.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1n2onr6.x1n5bzlp.x173jzuc.x1yc6y37.xfs2ol5'
+                send_button_present = False
+                try:
+                    send_button = WebDriverWait(browser, 20).until(EC.element_to_be_clickable((By.CSS_SELECTOR, send_button_selector)))
+                    send_button_present = True
+                except TimeoutException:
+                    logging.warning("Send button did not show up within the specified time. Proceeding without sending the message.")
+                    continue
                 
-                continue
-            
-            
-        # Check if message sent indicator is present
-        message_sent_indicator_present = False
-        try:
-            message_sent_indicator = browser.find_element(By.CSS_SELECTOR, 'div.x1tlxs6b.x1g8br2z.x1gn5b1j.x230xth.x14ctfv.x1okitfd.x6ikm8r.x10wlt62.x1mzt3pk.x1y1aw1k.xn6708d.xwib8y2.x1ye3gou.x1n2onr6.x13faqbe.x1vjfegm')
-            message_sent_indicator_present = True
-        except NoSuchElementException:
-            pass
+                if send_button_present:
+                    # Click on the send button to send the message
+                    send_button.click()
 
-        if message_sent_indicator_present:
-            # If message sent before, add user to sent_users table and delete from users table
-            logging.info(f"Message previously sent for user: {user.username}.")
-            
-            # Add user to sent_users table (pseudo code, replace with actual SQL query)
-            session.add(SentUser(username=user.username))
-            session.commit()
-            logging.info(f"User {user.username} added to sent_users table.")
-            
-            # Delete user from users table
-            session.query(User).filter_by(username=user.username).delete()
-            session.commit()
-            logging.info(f"User {user.username} deleted from users table.")
-            
-            continue
-        else:
-            logging.info(f"No message sent previously for user: {user.username}. Proceeding to send message.")
+                    # Add the user to the sent_users table
+                    sent_user = SentUser(username=user.username)
+                    session.add(sent_user)
+                    session.commit()
+                    logging.info("User %s added to sent_users table.", user.username)
 
-        # Click on the input area to focus it
-        input_area.click()
+                    # Delete the user from the users table
+                    session.query(User).filter_by(username=user.username).delete()
+                    session.commit()
+                    logging.info("User %s deleted from users table.", user.username)
+                    
+                    time.sleep(random.uniform(16, 26))
 
-        # Replace line breaks with spaces in the outreach message
-        outreach_message = outreach_message.replace('\n', ' ')
-        message = filter_non_bmp(outreach_message)
-
-        # Use the slow_send_keys function to send the filtered outreach message
-        slow_send_keys(input_area, message)
-        
-        time.sleep(random.uniform(2, 8))
-
-        # Find the send button
-        send_button_selector = 'div.x1i10hfl.xjqpnuy.xa49m3k.xqeqjp1.x2hbi6w.xdl72j9.x2lah0s.xe8uvvx.xdj266r.xat24cr.x1mh8g0r.x2lwn1j.xeuugli.x1hl2dhg.xggy1nq.x1ja2u2z.x1t137rt.x1q0g3np.x1lku1pv.x1a2a7pz.x6s0dn4.xjyslct.x1ejq31n.xd10rxx.x1sy0etr.x17r0tee.x9f619.x1ypdohk.x1f6kntn.xwhw2v2.xl56j7k.x17ydfre.x2b8uid.xlyipyv.x87ps6o.x14atkfc.xcdnw81.x1i0vuye.xjbqb8w.xm3z3ea.x1x8b98j.x131883w.x16mih1h.x972fbf.xcfux6l.x1qhh985.xm0m39n.xt0psk2.xt7dq6l.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1n2onr6.x1n5bzlp.x173jzuc.x1yc6y37.xfs2ol5'
-        send_button_present = False
-        try:
-            send_button = WebDriverWait(browser, 20).until(EC.element_to_be_clickable((By.CSS_SELECTOR, send_button_selector)))
-            send_button_present = True
-        except TimeoutException:
-            logging.warning("Send button did not show up within the specified time. Proceeding without sending the message.")
-            continue
-        
-        if send_button_present:
-            # Click on the send button to send the message
-            send_button.click()
-
-            # Add the user to the sent_users table
-            sent_user = SentUser(username=user.username)
-            session.add(sent_user)
-            session.commit()
-            logging.info("User %s added to sent_users table.", user.username)
-
-            # Delete the user from the users table
-            session.query(User).filter_by(username=user.username).delete()
-            session.commit()
-            logging.info("User %s deleted from users table.", user.username)
-            
-            time.sleep(random.uniform(16, 26))
-
-        else:
-            logging.warning("Send button was not present. Proceeding without sending the message.")
-            continue
+                else:
+                    logging.warning("Send button was not present. Proceeding without sending the message.")
+                    continue
 
 # End of the loop
-
+                pass
     
     # Close the browser and session
     browser.quit()
