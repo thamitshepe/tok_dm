@@ -193,15 +193,15 @@ def main():
             keywords = keyword_response.text.strip().split(',')
 
             # Constructing prompt for message generation
-            prompt = f"You are a mastersalesperson who crafts neat tailored outreach messages, You communicate a feeling and outcome more than just features or services, you connect with people, you understand their true nature and that its better to be clear and concise\n\n"
-            prompt += f"Only utilize info below in creating a tailored outreach message, it should make sense, only use this info, you specialize in tailored software solutions, AI, and automation\n"
+            prompt = f"Craft a neat tailored outreach message, You communicate a feeling and outcome more than just features or services, you connect with people, you understand their true nature and that its better to be clear and concise\n\n"
+            prompt += f"Only utilize info from keywords in creating a tailored outreach message, it should make sense, only use this info\n"
             prompt += f"Refrain from anything that may seem untruthful, eg I've been following you, or I'm such a fan etc, keep it professional, always ensure the message makes sense, refrain from any placeholders\n"
+            prompt += f"Outreach message is for services around tailored software solutions, ai integration and automation for my business at Thami.ai\n"
             prompt += f"Keywords: {', '.join(keywords)}"
             prompt += f"closely follow this message structure:\n"
-            prompt += f"- Warm and short greeting with the prospect's name from {display_name} or possibly from other info provided, if display name not present use {user.username} instead: 'Hi name',\n"
+            prompt += f"- Warm and short greeting with the prospect's name from {display_name} or possibly from other info provided, if display name not present use @{user.username} instead,\n"
             prompt += f"- 1 sentence referencing their work or background. Using keywords, don't make anything up, if keywords insufficient keep it friendly, something like looking to explore potential synergies\n"
-            prompt += f"- 1 descriptive sentence on how you can help optimize or elevate their business operations starting with 'I'd be glad to assist with...'\n"
-            prompt += f"- Call to action: 'Let me know if you'd like to reclaim what matters most'\n\n"
+            prompt += f"- 1 descriptive sentence on how you can help optimize or elevate their business operations starting with 'I'd be glad to assist with...', leading to a call to action like 'Let me know if you'd like to reclaim what matters most'\n"
 
             # Call Gemini API for message generation
             message_response = genai.GenerativeModel('gemini-pro').generate_content(prompt)
@@ -219,7 +219,7 @@ def main():
 
     # Modify this query to randomize the order of users fetched
     # Adjust `func.random()` if your database uses a different function for random sorting
-    users = session.query(User).order_by(func.random()).limit(25).all()
+    users = session.query(User).order_by(func.random()).limit(50).all()
 
     for user in users:
         if session.query(SentUser).filter_by(username=user.username).first():
