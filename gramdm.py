@@ -314,7 +314,7 @@ def main():
                 post_descriptions = [first_post_description]
             
             # Check if the next button is present
-            for i in range(7):
+            for i in range(3):
                 try:
                     time.sleep(4)
                     next_button_xpath = "div._aaqg._aaqh > button"
