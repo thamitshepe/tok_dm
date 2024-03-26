@@ -451,6 +451,8 @@ def main():
                 continue
             
             
+        time.sleep(15)
+        
         # Check if message sent indicator is present
         message_sent_indicator_present = False
         try:
