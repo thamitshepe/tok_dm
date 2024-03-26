@@ -78,18 +78,6 @@ def main():
     login_button.click()
     
     time.sleep(15)
-
-    # Wait for the iframe to be available and switch to it
-    iframe_selector = "/html/body/div[2]/div/div/div[3]/iframe"
-    WebDriverWait(browser, 20).until(
-        EC.frame_to_be_available_and_switch_to_it(
-            (By.XPATH, iframe_selector)
-        )
-    )
-
-    # Click Message Button
-    dm_button = WebDriverWait(browser, 20).until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[2]/div/div/div[2]/div/div/div[1]/div[1]/div[1]/div/div/div/div/div[2]/div[5]/div/div/div/span/div/a/div")))
-    dm_button.click()
     
     # Save session cookies
     save_cookies(browser)
