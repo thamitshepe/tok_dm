@@ -309,7 +309,7 @@ def main():
 
                 # Initialize a list to store post descriptions
                 post_descriptions = [first_post_description]
-            except TimeoutException:
+            except NoSuchElementException:
                 first_post_description = "First post description not present"
                 post_descriptions = [first_post_description]
             
