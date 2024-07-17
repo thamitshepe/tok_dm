@@ -196,7 +196,7 @@ def main():
             prompt = f"Craft a neat tailored outreach message, You communicate a feeling and outcome more than just features or services, you connect with people, you understand their true nature and that its better to be clear and concise\n\n"
             prompt += f"Only utilize info from keywords in creating a tailored outreach message, it should make sense, only use this info, never include any special characters in the generated message eg #, *, [, +, etc\n"
             prompt += f"Refrain from anything that may seem untruthful, eg I've been following you, or I'm such a fan etc, keep it professional, always ensure the message makes sense, refrain from any placeholders\n"
-            prompt += f"Outreach message is for services around tailored software solutions, ai integration and automation for my business, im Thami at Thami.ai, dont mention me or the business, focus on them\n"
+            prompt += f"Outreach message is for a team specializing in automated data entry and tailored solutions, im Thami at Thami.dev, we've done everything from dashboards, automations, ai intergration, inventory management, product sourcing, segmentation and much more\n"
             prompt += f"Keywords: {', '.join(keywords)}"
             prompt += f"closely follow this message structure:\n"
             prompt += f"- Warm and short greeting with the prospect's name from {display_name} or possibly from other info provided, if display name not present use @{user.username} instead,\n"
@@ -245,7 +245,7 @@ def main():
         browser.execute_script(javascript_code, user.username)
 
         # Check for window.private to be populated
-        wait = WebDriverWait(browser, 120)  # Adjust timeout as needed
+        wait = WebDriverWait(browser, 20)  # Adjust timeout as needed
         try:
             wait.until(JSVariableTruthy("window.private"))
             is_private = browser.execute_script("return window.private;")
@@ -279,7 +279,7 @@ def main():
 
         try:
             bio_element = WebDriverWait(browser, 20).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, "h1._ap3a._aaco._aacu._aacx._aad6._aade"))
+                EC.presence_of_element_located((By.CSS_SELECTOR, "span._ap3a._aaco._aacu._aacx._aad7._aade"))
             )
             bio = bio_element.text
         except TimeoutException:
@@ -289,7 +289,7 @@ def main():
         # Check if the post container exists, if not, return "No post descriptions present"
         try:
             post_container = WebDriverWait(browser, 10).until(
-                EC.presence_of_element_located((By.XPATH, "/html/body/div[2]/div/div/div[2]/div/div/div[1]/div[1]/div[2]/div[2]/section/main/div/div[3]/div/div[1]/div[1]/a"))
+                EC.presence_of_element_located((By.XPATH, "/html/body/div[2]/div/div/div[2]/div/div/div[1]/div[2]/div/div[2]/section/main/div/div[2]/div/div[1]/div[1]/a/div[1]/div[2]"))
             )
             
             # Click on the post container
@@ -299,9 +299,9 @@ def main():
             time.sleep(random.uniform(2, 8))
 
             # Click the like button
-            like_button_selector = "body > div.x1n2onr6.xzkaem6 > div.x9f619.x1n2onr6.x1ja2u2z > div > div.x1uvtmcs.x4k7w5x.x1h91t0o.x1beo9mf.xaigb6o.x12ejxvf.x3igimt.xarpa2k.xedcshv.x1lytzrv.x1t2pt76.x7ja8zs.x1n2onr6.x1qrby5j.x1jfb8zj > div > div > div > div > div.xb88tzc.xw2csxc.x1odjw0f.x5fp0pe.x1qjc9v5.xjbqb8w.x1lcm9me.x1yr5g0i.xrt01vj.x10y3i5r.xr1yuqi.xkrivgy.x4ii5y1.x1gryazu.x15h9jz8.x47corl.xh8yej3.xir0mxb.x1juhsu6 > div > article > div > div.x1qjc9v5.x972fbf.xcfux6l.x1qhh985.xm0m39n.x9f619.x78zum5.xdt5ytf.x1iyjqo2.x5wqa0o.xln7xf2.xk390pu.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.x65f84u.x1vq45kp.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1n2onr6.x11njtxf > div > div > div.x78zum5.xdt5ytf.x1q2y9iw.x1n2onr6.xh8yej3.x9f619.x1iyjqo2.x18l3tf1.x26u7qi.xy80clv.xexx8yu.x4uap5.x18d9i69.xkhd6sd > section.x78zum5.x1q0g3np.xwib8y2.x1yrsyyn.x1xp8e9x.x13fuv20.x178xt8z.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xo1ph6p.x1pi30zi.x1swvt13 > span.x1rg5ohu.xp7jhwk > div"
-            like_button = browser.find_element(By.CSS_SELECTOR, like_button_selector)
-            browser.execute_script("arguments[0].click();", like_button)
+            #like_button_selector = "body > div.x1n2onr6.xzkaem6 > div.x9f619.x1n2onr6.x1ja2u2z > div > div.x1uvtmcs.x4k7w5x.x1h91t0o.x1beo9mf.xaigb6o.x12ejxvf.x3igimt.xarpa2k.xedcshv.x1lytzrv.x1t2pt76.x7ja8zs.x1n2onr6.x1qrby5j.x1jfb8zj > div > div > div > div > div.xb88tzc.xw2csxc.x1odjw0f.x5fp0pe.x1qjc9v5.xjbqb8w.x1lcm9me.x1yr5g0i.xrt01vj.x10y3i5r.xr1yuqi.xkrivgy.x4ii5y1.x1gryazu.x15h9jz8.x47corl.xh8yej3.xir0mxb.x1juhsu6 > div > article > div > div.x1qjc9v5.x972fbf.xcfux6l.x1qhh985.xm0m39n.x9f619.x78zum5.xdt5ytf.x1iyjqo2.x5wqa0o.xln7xf2.xk390pu.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.x65f84u.x1vq45kp.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1n2onr6.x11njtxf > div > div > div.x78zum5.xdt5ytf.x1q2y9iw.x1n2onr6.xh8yej3.x9f619.x1iyjqo2.x18l3tf1.x26u7qi.xy80clv.xexx8yu.x4uap5.x18d9i69.xkhd6sd > section.x78zum5.x1q0g3np.xwib8y2.x1yrsyyn.x1xp8e9x.x13fuv20.x178xt8z.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xo1ph6p.x1pi30zi.x1swvt13 > span.x1rg5ohu.xp7jhwk > div"
+            #like_button = browser.find_element(By.CSS_SELECTOR, like_button_selector)
+            #browser.execute_script("arguments[0].click();", like_button)
 
             try:
                 # Extract text from the first post description
@@ -328,11 +328,11 @@ def main():
                         post_description = "Description not present"
                         
                     # Randomly decide whether to click like or not
-                    if random.choice([True, False]):
+                    #if random.choice([True, False]):
                         # Click the like button
-                        like_button_selector = "body > div.x1n2onr6.xzkaem6 > div.x9f619.x1n2onr6.x1ja2u2z > div > div.x1uvtmcs.x4k7w5x.x1h91t0o.x1beo9mf.xaigb6o.x12ejxvf.x3igimt.xarpa2k.xedcshv.x1lytzrv.x1t2pt76.x7ja8zs.x1n2onr6.x1qrby5j.x1jfb8zj > div > div > div > div > div.xb88tzc.xw2csxc.x1odjw0f.x5fp0pe.x1qjc9v5.xjbqb8w.x1lcm9me.x1yr5g0i.xrt01vj.x10y3i5r.xr1yuqi.xkrivgy.x4ii5y1.x1gryazu.x15h9jz8.x47corl.xh8yej3.xir0mxb.x1juhsu6 > div > article > div > div.x1qjc9v5.x972fbf.xcfux6l.x1qhh985.xm0m39n.x9f619.x78zum5.xdt5ytf.x1iyjqo2.x5wqa0o.xln7xf2.xk390pu.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.x65f84u.x1vq45kp.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1n2onr6.x11njtxf > div > div > div.x78zum5.xdt5ytf.x1q2y9iw.x1n2onr6.xh8yej3.x9f619.x1iyjqo2.x18l3tf1.x26u7qi.xy80clv.xexx8yu.x4uap5.x18d9i69.xkhd6sd > section.x78zum5.x1q0g3np.xwib8y2.x1yrsyyn.x1xp8e9x.x13fuv20.x178xt8z.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xo1ph6p.x1pi30zi.x1swvt13 > span.x1rg5ohu.xp7jhwk > div"
-                        like_button = browser.find_element(By.CSS_SELECTOR, like_button_selector)
-                        browser.execute_script("arguments[0].click();", like_button)
+                        #like_button_selector = "body > div.x1n2onr6.xzkaem6 > div.x9f619.x1n2onr6.x1ja2u2z > div > div.x1uvtmcs.x4k7w5x.x1h91t0o.x1beo9mf.xaigb6o.x12ejxvf.x3igimt.xarpa2k.xedcshv.x1lytzrv.x1t2pt76.x7ja8zs.x1n2onr6.x1qrby5j.x1jfb8zj > div > div > div > div > div.xb88tzc.xw2csxc.x1odjw0f.x5fp0pe.x1qjc9v5.xjbqb8w.x1lcm9me.x1yr5g0i.xrt01vj.x10y3i5r.xr1yuqi.xkrivgy.x4ii5y1.x1gryazu.x15h9jz8.x47corl.xh8yej3.xir0mxb.x1juhsu6 > div > article > div > div.x1qjc9v5.x972fbf.xcfux6l.x1qhh985.xm0m39n.x9f619.x78zum5.xdt5ytf.x1iyjqo2.x5wqa0o.xln7xf2.xk390pu.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.x65f84u.x1vq45kp.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1n2onr6.x11njtxf > div > div > div.x78zum5.xdt5ytf.x1q2y9iw.x1n2onr6.xh8yej3.x9f619.x1iyjqo2.x18l3tf1.x26u7qi.xy80clv.xexx8yu.x4uap5.x18d9i69.xkhd6sd > section.x78zum5.x1q0g3np.xwib8y2.x1yrsyyn.x1xp8e9x.x13fuv20.x178xt8z.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xo1ph6p.x1pi30zi.x1swvt13 > span.x1rg5ohu.xp7jhwk > div"
+                        #like_button = browser.find_element(By.CSS_SELECTOR, like_button_selector)
+                        #browser.execute_script("arguments[0].click();", like_button)
                     
                 except NoSuchElementException:
                     # If next button is not present, break the loop
@@ -456,7 +456,7 @@ def main():
         # Check if message sent indicator is present
         message_sent_indicator_present = False
         try:
-            message_sent_indicator = browser.find_element(By.CSS_SELECTOR, 'div.x1tlxs6b.x1g8br2z.x1gn5b1j.x230xth.x14ctfv.x1okitfd.x6ikm8r.x10wlt62.x1mzt3pk.x1y1aw1k.xn6708d.xwib8y2.x1ye3gou.x1n2onr6.x13faqbe.x1vjfegm')
+            message_sent_indicator = browser.find_element(By.CSS_SELECTOR, 'div.html-div.xe8uvvx.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.x14ctfv.x1okitfd.x1k4qllp.x6ikm8r.x10wlt62.x1n2onr6.x1vjfegm.x1mzt3pk.x13faqbe.x11jlvup.xpmdkuv.x154zaqr.x12z03op.xyhp3ou.x13fuv20.xu3j5b3.x1q0q8m5.x26u7qi.x12lizq0.xf766zg.x1ybe9c6.x1ts5dru.x1tlxs6b.x1g8br2z.x1gn5b1j.x230xth.xm7lytj.xn6708d.x1ykpatu.x1ye3gou')
             message_sent_indicator_present = True
         except NoSuchElementException:
             pass
