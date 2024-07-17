@@ -77,7 +77,7 @@ def main():
     login_button = WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "#loginForm > div > div:nth-child(3) > button")))
     login_button.click()
     
-    time.sleep(15)
+    time.sleep(40)
     
     # Save session cookies
     save_cookies(browser)
